@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 
 # Base URL of your FastAPI backend
-API_URL = " https://heartdiseaseprediction-wcl5.onrender.com"
+API_URL = " https://heart-project-backend-2.onrender.com"
 
 
 # Initialize session state
@@ -115,4 +115,5 @@ elif choice == "Logout":
     st.session_state.logged_in = False
     st.session_state.user_id = None
     st.success("Logged out successfully.")
+
 
