@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_URL = "https://heart-project-backend-3.onrender.com"
+API_URL = " https://heart-project-backend-4.onrender.com"
 
 # Initialize session state
 if "logged_in" not in st.session_state:
@@ -60,17 +60,17 @@ def prediction_page():
         """,
         unsafe_allow_html=True
     )
-    age = st.number_input("Age", 1, 120, value=30)
+    age = st.number_input("Age", 1, 120, value=None)
     sex = st.selectbox("Sex", [0, 1], format_func=lambda x: "Female" if x == 0 else "Male")
-    Chest_Pain = st.selectbox("Chest Pain Type (0–3)", [0, 1, 2, 3])
-    Resting_Blood_Pressure = st.number_input("Resting Blood Pressure", 80, 200, value=120)
-    Cholesterol = st.number_input("Cholesterol", 100, 600, value=200)
-    Fasting_Blood_Sugar = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
-    Resting_ECG_Results = st.selectbox("Resting ECG Results (0–2)", [0, 1, 2])
-    Maximum_Heart_Rate_Achieved = st.number_input("Max Heart Rate Achieved", 60, 250, value=150)
-    Chest_Pain_During_Exercise = st.selectbox("Chest Pain During Exercise", [0, 1])
-    ST_depression_level = st.number_input("ST Depression", 0.0, 6.0, value=1.0)
-    Slope_of_ST_segment = st.selectbox("Slope of ST Segment", [0, 1, 2])
+    Chest_Pain = st.selectbox("Chest Pain Type (0–3)", [0, 1, 2, 3],format_func=lambda x:["Typical angina","Atypical angina","Non-anginal pain","Asymptomatic"][x])
+    Resting_Blood_Pressure = st.number_input("Resting Blood Pressure", 80, 200, value=None)
+    Cholesterol = st.number_input("Cholesterol", 100, 600, value=None)
+    Fasting_Blood_Sugar = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1],format_func=lambda x:"No" if x==0 else "Yes")
+    Resting_ECG_Results = st.selectbox("Resting ECG Results (0–2)", [0, 1, 2],format_func=lambda x:["Normal","ST-T  wave abnormality","Left Ventricular hypertrophy"][x])
+    Maximum_Heart_Rate_Achieved = st.number_input("Max Heart Rate Achieved", 60, 250, value=None)
+    Chest_Pain_During_Exercise = st.selectbox("Chest Pain During Exercise", [0, 1],format_func=lambda x:"No" if x==0 else "Yes")
+    ST_depression_level = st.number_input("ST Depression", 0.0, 6.0, value=None)
+    Slope_of_ST_segment = st.selectbox("Slope of ST Segment", [0, 1, 2],format_func=lambda x:["Upsloping","Flat","Downslopping"][x])
 
     if st.button("Predict"):
         input_data = {
@@ -115,3 +115,4 @@ elif choice == "Logout":
     st.session_state.logged_in = False
     st.session_state.username = None
     st.success("Logged out successfully.")
+
