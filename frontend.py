@@ -17,33 +17,19 @@ def register():
     password = st.text_input("Password", type="password")
 
     if st.button("Register"):
-        # Check for blank fields
-        if not username or not email or not password:
-            st.error("Please fill in all fields!")
-            return
-
         payload = {
             "username": username,
             "email": email,
             "password": password
         }
-        try:
-            res = requests.post(f"{API_URL}/register", json=payload)
-            if res.status_code == 200:
-                st.success(res.json().get("message", "Registration successful!"))
-            else:
-                try:
-                    err = res.json()
-                    # Show all error keys for easier debugging
-                    if "detail" in err:
-                        st.error(err["detail"])
-                    else:
-                        st.error(str(err))
-                except Exception as e:
-                    st.error(f"Registration failed. Raw response: {res.text}")
-        except Exception as e:
-            st.error(f"Connection error: {e}")
-
+        res = requests.post(f"{API_URL}/register", json=payload)
+        if res.status_code == 200:
+            st.success(res.json()["message"])
+        else:
+            try:
+                st.error(res.json()["detail"])
+            except:
+                st.error("Registration failed.")
 
 # ------------------- Login Page -------------------
 def login():
@@ -74,17 +60,17 @@ def prediction_page():
         """,
         unsafe_allow_html=True
     )
-    age = st.number_input("Age", 1, 120, value=None)
+    age = st.number_input("Age", 1, 120, value=30)
     sex = st.selectbox("Sex", [0, 1], format_func=lambda x: "Female" if x == 0 else "Male")
-    Chest_Pain = st.selectbox("Chest Pain Type (0–3)", [0, 1, 2, 3],format_func=lambda x:["Typical Angina","AtypicalAngina","Non-anginal pain","Asymptomatic"][x])
-    Resting_Blood_Pressure = st.number_input("Resting Blood Pressure", 80, 200, value=None)
-    Cholesterol = st.number_input("Cholesterol", 100, 600, value=None)
-    Fasting_Blood_Sugar = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1],format_func=lambda x:"No" if x==0 else "Yes")
-    Resting_ECG_Results = st.selectbox("Resting ECG Results (0–2)", [0,1,2],format_func=lambda x: ["Normal","ST-T wave abnormality","Left ventricular hypertrophy"][x])
-    Maximum_Heart_Rate_Achieved = st.number_input("Max Heart Rate Achieved", 60, 250, value=None)
-    Chest_Pain_During_Exercise = st.selectbox("Chest Pain During Exercise", [0, 1],format_func=lambda x:"No" if x==0 else "Yes")
-    ST_depression_level = st.number_input("ST Depression", 0.0, 6.0, value=None)
-    Slope_of_ST_segment = st.selectbox("Slope of ST Segment", [0,1,2],format_func=lambda x:["Unsloping","Flat","Downsloping"][x])
+    Chest_Pain = st.selectbox("Chest Pain Type (0–3)", [0, 1, 2, 3])
+    Resting_Blood_Pressure = st.number_input("Resting Blood Pressure", 80, 200, value=120)
+    Cholesterol = st.number_input("Cholesterol", 100, 600, value=200)
+    Fasting_Blood_Sugar = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
+    Resting_ECG_Results = st.selectbox("Resting ECG Results (0–2)", [0, 1, 2])
+    Maximum_Heart_Rate_Achieved = st.number_input("Max Heart Rate Achieved", 60, 250, value=150)
+    Chest_Pain_During_Exercise = st.selectbox("Chest Pain During Exercise", [0, 1])
+    ST_depression_level = st.number_input("ST Depression", 0.0, 6.0, value=1.0)
+    Slope_of_ST_segment = st.selectbox("Slope of ST Segment", [0, 1, 2])
 
     if st.button("Predict"):
         input_data = {
@@ -104,35 +90,28 @@ def prediction_page():
         res = requests.post(f"{API_URL}/predict", json=input_data)
         if res.status_code == 200:
             result = res.json()["prediction"]
-            st.success(f"Prediction: {'No Risk of Heart Disease Detected' if result == 1 else 'High Risk of Heart Disease Detected'}")
+            st.success(f"Prediction: {'No Risk of Heart Disease Detected' if result == 0 else 'High Risk of Heart Disease Detected'}")
         else:
             st.error("Prediction failed, make sure you are logged in and have filled all fields.")
 
 # ------------------- Page Routing -------------------
 st.sidebar.title("Navigation")
+if st.session_state.logged_in:
+    choice = st.sidebar.selectbox("Menu", ["Predict", "Logout"])
+else:
+    choice = st.sidebar.selectbox("Menu", ["Login", "Register"])
 
-# Single menu with all options
-choice = st.sidebar.selectbox("Menu", ["Login", "Register", "Predict", "Logout"])
-
-# Logic based on selected choice
 if choice == "Login":
-    if not st.session_state.get("logged_in", False):
+    if not st.session_state.logged_in:
         login()
-    else:
-        st.info("You're already logged in.")
-
 elif choice == "Register":
     register()
-
 elif choice == "Predict":
-    if st.session_state.get("logged_in", False):
+    if st.session_state.logged_in:
         prediction_page()
     else:
-        st.warning("Please login to access the prediction page.")
-
+        st.warning("Please login to access prediction.")
 elif choice == "Logout":
     st.session_state.logged_in = False
     st.session_state.username = None
     st.success("Logged out successfully.")
-
-
