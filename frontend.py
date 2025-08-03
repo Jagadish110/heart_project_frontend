@@ -90,7 +90,7 @@ def prediction_page():
         res = requests.post(f"{API_URL}/predict", json=input_data)
         if res.status_code == 200:
             result = res.json()["prediction"]
-            st.success(f"Prediction: {'No Risk of Heart Disease Detected' if result == 0 else 'High Risk of Heart Disease Detected'}")
+            st.success(f"Prediction: {'High Risk of Heart Disease Detected' if result == 0 else 'No Risk of Heart Disease Detected'}")
         else:
             st.error("Prediction failed, make sure you are logged in and have filled all fields.")
 
@@ -115,4 +115,5 @@ elif choice == "Logout":
     st.session_state.logged_in = False
     st.session_state.username = None
     st.success("Logged out successfully.")
+
 
