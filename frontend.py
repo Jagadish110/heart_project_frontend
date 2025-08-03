@@ -1,15 +1,13 @@
 import streamlit as st
 import requests
 
-# Base URL of your FastAPI backend
-API_URL = " https://heart-project-backend-2.onrender.com"
-
+API_URL = "https://heart-project-backend-3.onrender.com"
 
 # Initialize session state
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-if "user_id" not in st.session_state:
-    st.session_state.user_id = None
+if "username" not in st.session_state:
+    st.session_state.username = None
 
 # ------------------- Register Page -------------------
 def register():
@@ -28,7 +26,10 @@ def register():
         if res.status_code == 200:
             st.success(res.json()["message"])
         else:
-            st.error(res.json()["detail"])
+            try:
+                st.error(res.json()["detail"])
+            except:
+                st.error("Registration failed.")
 
 # ------------------- Login Page -------------------
 def login():
@@ -46,7 +47,7 @@ def login():
             data = res.json()
             st.success("Login successful")
             st.session_state.logged_in = True
-            st.session_state.user_id = data["user_id"]
+            st.session_state.username = username  # Set the username in session!
         else:
             st.error("Invalid credentials")
 
@@ -58,41 +59,40 @@ def prediction_page():
         <p style='text-align:None;'>Enter your details below to predict the risk of heart disease.</p>
         """,
         unsafe_allow_html=True
-
     )
-    age = st.number_input("Age", 1, 120,value=None)
-    sex = st.selectbox("Sex", [0, 1], format_func=lambda x: "Female" if x == 0 else "Male")  # 0 = female, 1 = male
-    cp = st.selectbox("Chest Pain Type (0–3)", [0, 1, 2, 3])
-    trestbps = st.number_input("Resting Blood Pressure", 80, 200)
-    chol = st.number_input("Cholesterol", 100, 600)
-    fbs = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
-    restecg = st.selectbox("Resting ECG Results (0–2)", [0, 1, 2])
-    thalach = st.number_input("Max Heart Rate Achieved", 60, 250)
-    exang = st.selectbox("Chest Pain During Exercise", [0, 1])
-    oldpeak = st.number_input("ST Depression", 0.0, 6.0)
-    slope = st.selectbox("Slope of ST Segment", [0, 1, 2])
+    age = st.number_input("Age", 1, 120, value=30)
+    sex = st.selectbox("Sex", [0, 1], format_func=lambda x: "Female" if x == 0 else "Male")
+    Chest_Pain = st.selectbox("Chest Pain Type (0–3)", [0, 1, 2, 3])
+    Resting_Blood_Pressure = st.number_input("Resting Blood Pressure", 80, 200, value=120)
+    Cholesterol = st.number_input("Cholesterol", 100, 600, value=200)
+    Fasting_Blood_Sugar = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
+    Resting_ECG_Results = st.selectbox("Resting ECG Results (0–2)", [0, 1, 2])
+    Maximum_Heart_Rate_Achieved = st.number_input("Max Heart Rate Achieved", 60, 250, value=150)
+    Chest_Pain_During_Exercise = st.selectbox("Chest Pain During Exercise", [0, 1])
+    ST_depression_level = st.number_input("ST Depression", 0.0, 6.0, value=1.0)
+    Slope_of_ST_segment = st.selectbox("Slope of ST Segment", [0, 1, 2])
 
     if st.button("Predict"):
         input_data = {
-            "user_id": st.session_state.user_id,
+            "username": st.session_state.username,  # Correct session key!
             "age": age,
             "sex": sex,
-            "cp": cp,
-            "trestbps": trestbps,
-            "chol": chol,
-            "fbs": fbs,
-            "restecg": restecg,
-            "thalach": thalach,
-            "exang": exang,
-            "oldpeak": oldpeak,
-            "slope": slope
+            "Chest_Pain": Chest_Pain,
+            "Resting_Blood_Pressure": Resting_Blood_Pressure,
+            "Cholesterol": Cholesterol,
+            "Fasting_Blood_Sugar": Fasting_Blood_Sugar,
+            "Resting_ECG_Results": Resting_ECG_Results,
+            "Maximum_Heart_Rate_Achieved": Maximum_Heart_Rate_Achieved,
+            "Chest_Pain_During_Exercise": Chest_Pain_During_Exercise,
+            "ST_depression_level": ST_depression_level,
+            "Slope_of_ST_segment": Slope_of_ST_segment
         }
         res = requests.post(f"{API_URL}/predict", json=input_data)
         if res.status_code == 200:
             result = res.json()["prediction"]
-            st.success(f"Prediction: {'No Risk of Heart Disease Detected' if result == 1 else 'High Risk of Heart Disease Detected'}")
+            st.success(f"Prediction: {'No Risk of Heart Disease Detected' if result == 0 else 'High Risk of Heart Disease Detected'}")
         else:
-            st.error("Prediction failed.")
+            st.error("Prediction failed, make sure you are logged in and have filled all fields.")
 
 # ------------------- Page Routing -------------------
 st.sidebar.title("Navigation")
@@ -113,7 +113,5 @@ elif choice == "Predict":
         st.warning("Please login to access prediction.")
 elif choice == "Logout":
     st.session_state.logged_in = False
-    st.session_state.user_id = None
+    st.session_state.username = None
     st.success("Logged out successfully.")
-
-
