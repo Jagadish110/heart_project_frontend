@@ -70,7 +70,7 @@ def prediction_page():
     Maximum_Heart_Rate_Achieved = st.number_input("Max Heart Rate Achieved", 60, 250, value=None)
     Chest_Pain_During_Exercise = st.selectbox("Chest Pain During Exercise", [0, 1],format_func=lambda x:"No" if x==0 else "Yes")
     ST_depression_level = st.number_input("ST Depression", 0.0, 6.0, value=None)
-    Slope_of_ST_segment = st.selectbox("Slope of ST Segment", [0,1,2],format_func=lambda x:["Unsloping","Flat","Downsloping][x])
+    Slope_of_ST_segment = st.selectbox("Slope of ST Segment", [0,1,2],format_func=lambda x:["Unsloping","Flat","Downsloping"][x])
 
     if st.button("Predict"):
         input_data = {
@@ -120,3 +120,4 @@ elif choice == "Logout":
     st.session_state.logged_in = False
     st.session_state.username = None
     st.success("Logged out successfully.")
+
