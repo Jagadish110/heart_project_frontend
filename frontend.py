@@ -17,19 +17,33 @@ def register():
     password = st.text_input("Password", type="password")
 
     if st.button("Register"):
+        # Check for blank fields
+        if not username or not email or not password:
+            st.error("Please fill in all fields!")
+            return
+
         payload = {
             "username": username,
             "email": email,
             "password": password
         }
-        res = requests.post(f"{API_URL}/register", json=payload)
-        if res.status_code == 200:
-            st.success(res.json()["message"])
-        else:
-            try:
-                st.error(res.json()["detail"])
-            except:
-                st.error("Registration failed.")
+        try:
+            res = requests.post(f"{API_URL}/register", json=payload)
+            if res.status_code == 200:
+                st.success(res.json().get("message", "Registration successful!"))
+            else:
+                try:
+                    err = res.json()
+                    # Show all error keys for easier debugging
+                    if "detail" in err:
+                        st.error(err["detail"])
+                    else:
+                        st.error(str(err))
+                except Exception as e:
+                    st.error(f"Registration failed. Raw response: {res.text}")
+        except Exception as e:
+            st.error(f"Connection error: {e}")
+
 
 # ------------------- Login Page -------------------
 def login():
@@ -120,4 +134,5 @@ elif choice == "Logout":
     st.session_state.logged_in = False
     st.session_state.username = None
     st.success("Logged out successfully.")
+
 
