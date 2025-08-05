@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_URL = "https://heart-project-backend-7.onrender.com"
+API_URL = "https://heart-project-backend-8.onrender.com"
 
 # Initialize session state
 if "logged_in" not in st.session_state:
@@ -115,6 +115,7 @@ elif choice == "Logout":
     st.session_state.logged_in = False
     st.session_state.username = None
     st.success("Logged out successfully.")
+
 
 
 
